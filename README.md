@@ -51,6 +51,8 @@ This application is inspired by the [Python toy KBA system](http://trec-kba.org/
         -r toy_02 -t UvA -d "My first run." \
         > toy_kba_system.run_1.json
 
+Note that the ```tiny-kba-stream-corpus``` can be found in the [official toy KBA system](http://trec-kba.org/toy-kba-system.tar.gz).
+
 Type ```hadoop jar trec-kba.jar ilps.hadoop.bin.ToyKbaSystem --help``` for all possible options. 
 
 ## Issues
