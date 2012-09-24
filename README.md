@@ -39,14 +39,23 @@ This application merely counts the the different genres (web, social, news) in t
     hadoop jar trec-kba.jar ilps.hadoop.bin CountGenres \
         -i kba/kba-stream-corpus-2012-cleansed-only-out/*/* \
         -o kba/kba-stream-corpus-2012-cleansed-only-genre-counts
+        
+### Repacking the data
+
+In order to speed up processing, you can repack the KBA data using [RepackKbaData.java](https://github.com/ejmeij/trec-kba/blob/master/src/ilps/hadoop/bin/RepackKbaData.java). This will extract the documents and write block-compressed SequenceFiles with the dirname as key and each Thrift document (StreamItemWritable) as value.   
+
+    hadoop jar trec-kba.jar ilps.hadoop.bin.RepackKbaData \
+        -i kba/tiny-kba-stream-corpus/*/* \
+        -o kba/tiny-kba-stream-corpus-repacked \
+        -r 1 -f # using 1 reducer and force overwriting the output dir
 
 ### Toy KBA system
 
 This application is inspired by the [Python toy KBA system](http://trec-kba.org/kba-ccr-2012.shtml) and provides similar functionality. To run, use
     
     hadoop jar trec-kba.jar ilps.hadoop.bin.ToyKbaSystem \
-        -i kba/tiny-kba-stream-corpus/*/* \
-        -o kba/tiny-kba-stream-corpus-out \
+        -i kba/tiny-kba-stream-corpus-repacked \
+        -o kba/tiny-kba-stream-corpus-repacked-toy \
         -q kba/filter-topics.sample-trec-kba-targets-2012.json \
         -r toy_02 -t UvA -d "My first run." \
         > toy_kba_system.run_1.json
@@ -54,6 +63,14 @@ This application is inspired by the [Python toy KBA system](http://trec-kba.org/
 Note that the ```tiny-kba-stream-corpus``` can be found in the [official toy KBA system](http://trec-kba.org/toy-kba-system.tar.gz).
 
 Type ```hadoop jar trec-kba.jar ilps.hadoop.bin.ToyKbaSystem --help``` for all possible options. 
+
+## Changelog
+
+### 2012-09-24
+
+*   Added a class (ilps.hadoop.bin.RepackData) that converts the KBA data to block-compressed sequences files to speed up subsequent processing. It specifies the same key-value pairs as the ThriftFileInputFormat, just make sure to change the InputFormatClass to SequenceFileInputFormat. 
+*   Updated Toy KBA System to the new output (without the date field)
+*   Added a flag (-f) to allow overwriting Hadoop data
 
 ## Issues
 
