@@ -18,7 +18,6 @@ package ilps.hadoop.bin;
 
 import ilps.hadoop.StreamItemWritable;
 import ilps.hadoop.StringLongPair;
-import ilps.hadoop.ThriftFileInputFormat;
 import ilps.json.run.Filter_run;
 import ilps.json.topics.Filter_topics;
 
@@ -50,6 +49,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.Tool;
@@ -102,7 +102,7 @@ public class ToyKbaSystem extends Configured implements Tool {
         String doc_entity = pair.getLeftElement();
         Long count = pair.getRightElement();
 
-        out.set(teamname + " " + runtag + " " + date + " " + doc_entity + " "
+        out.set(teamname + " " + runtag + " " + doc_entity + " "
             + count.toString());
         context.write(out, none);
 
@@ -292,7 +292,8 @@ public class ToyKbaSystem extends Configured implements Tool {
     System.out
         .println("Usage: "
             + ToyKbaSystem.class.getName()
-            + " -i input -o output -q query_file (hdfs) [-c corpus_id -r runtag -t teamname -d description] \n\n"
+            + " -i input -o output -q query_file (hdfs) [-f] [-c corpus_id -r runtag -t teamname -d description] \n\n"
+            + "  -f will overwrite the output folder\n\n"
             + "Example usage: hadoop jar trec-kba.jar "
             + ToyKbaSystem.class.getName() + " "
             + "-i kba/tiny-kba-stream-corpus/*/* "
@@ -312,6 +313,7 @@ public class ToyKbaSystem extends Configured implements Tool {
     String corpus_id = null;
     String runtag = null;
     String teamname = null;
+    boolean force = false;
     HashMap<String, Object> run_info = new HashMap<String, Object>();
 
     List<String> other_args = new ArrayList<String>();
@@ -331,6 +333,8 @@ public class ToyKbaSystem extends Configured implements Tool {
           systemdescription = args[++i];
         } else if ("-c".equals(args[i])) {
           corpus_id = args[++i];
+        } else if ("-f".equals(args[i])) {
+          force = true;
         } else if ("-h".equals(args[i]) || "--help".equals(args[i])) {
           return printUsage();
         } else {
@@ -389,7 +393,10 @@ public class ToyKbaSystem extends Configured implements Tool {
         + QUERYFILEPATH_HDFS), job.getConfiguration());
     DistributedCache.createSymlink(job.getConfiguration());
 
-    job.setInputFormatClass(ThriftFileInputFormat.class);
+    // for the raw data:
+    // job.setInputFormatClass(ThriftFileInputFormat.class);
+    // for the repacked data:
+    job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setMapperClass(MyMapper.class);
     FileInputFormat.addInputPath(job, new Path(in));
 
@@ -400,7 +407,9 @@ public class ToyKbaSystem extends Configured implements Tool {
     job.setReducerClass(MyReducer.class);
     job.setNumReduceTasks(1);
 
-    FileSystem.get(conf).delete(new Path(out), true);
+    // delete the output dir
+    if (force)
+      FileSystem.get(conf).delete(new Path(out), true);
     TextOutputFormat.setOutputPath(job, new Path(out));
     job.setOutputFormatClass(TextOutputFormat.class);
     job.setOutputKeyClass(Text.class);

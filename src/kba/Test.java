@@ -39,7 +39,8 @@ public class Test {
 
         si.read(tp);
 
-        System.out.println(new String(si.getDoc_id()));
+        System.out.println(new String(si.getDoc_id()) + "\t"
+            + si.getStream_id());
 
       } catch (Exception e) {
         e.printStackTrace();
