@@ -31,14 +31,6 @@ Eclipse project files are included, so you can also directly check out/build the
 The project comes with two example Hadoop applications; a simple genre counter and a toy KBA system. Both assume that the KBA files have been downloaded, un-gpg'ed, and un-xz'ed. in the official folder structure. Below, I'm assuming the root folder is ```kba/kba-stream-corpus-2012-cleansed-only-out```.    
 
 To actually fetch the [data](http://trec-kba.csail.mit.edu/kba-stream-corpus-2012/) (if you haven't already done so), you can write a simple shell script and use Hadoop streaming to fetch, un-gpg, and un-xz the data.   
-
-### Genre counter
-
-This application merely counts the the different genres (web, social, news) in the KBA data. To run, use 
-
-    hadoop jar trec-kba.jar ilps.hadoop.bin CountGenres \
-        -i kba/kba-stream-corpus-2012-cleansed-only-out/*/* \
-        -o kba/kba-stream-corpus-2012-cleansed-only-genre-counts
         
 ### Repacking the data
 
@@ -62,7 +54,15 @@ This application is inspired by the [Python toy KBA system](http://trec-kba.org/
 
 Note that the ```tiny-kba-stream-corpus``` can be found in the [official toy KBA system](http://trec-kba.org/toy-kba-system.tar.gz).
 
-Type ```hadoop jar trec-kba.jar ilps.hadoop.bin.ToyKbaSystem --help``` for all possible options. 
+Type ```hadoop jar trec-kba.jar ilps.hadoop.bin.ToyKbaSystem --help``` for all possible options.
+
+### Genre counter
+
+This application merely counts the the different genres (web, social, news) in the KBA data. To run, use 
+
+    hadoop jar trec-kba.jar ilps.hadoop.bin CountGenres \
+        -i kba/tiny-kba-stream-corpus-repacked \
+        -o kba/tiny-kba-stream-corpus-repacked-genre-counts 
 
 ## Changelog
 

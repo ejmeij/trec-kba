@@ -16,7 +16,6 @@
 package ilps.hadoop.bin;
 
 import ilps.hadoop.StreamItemWritable;
-import ilps.hadoop.ThriftFileInputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.reduce.IntSumReducer;
 import org.apache.hadoop.util.Tool;
@@ -57,41 +57,12 @@ public class CountGenres extends Configured implements Tool {
     private final Text out = new Text();
     private final IntWritable one = new IntWritable(1);
 
-    /** 
-     * Not used
-     */
-    @Override
-    public void setup(Context context) throws IOException, InterruptedException {
-      super.setup(context);
-    }
-
-    /** 
-     * Not used
-     */
-    @Override
-    protected void cleanup(Context context) throws IOException,
-        InterruptedException {
-      super.cleanup(context);
-    }
-
     @Override
     public void map(Text key, StreamItemWritable value, Context context)
         throws IOException, InterruptedException {
 
       context.getCounter(Counter.records).increment(1);
-
-      // filename-based
-      // String filename = key.toString();
-
-      // String genrew = filename.substring(0, filename.indexOf('.'));
-
-      // String date = filename.substring(
-      // filename.lastIndexOf('/', filename.lastIndexOf('/') - 1) + 1,
-      // filename.lastIndexOf('/'));
-
-      // thrift-based
       String genre = value.getSource();
-
       out.set(genre);
       context.write(out, one);
 
@@ -106,7 +77,10 @@ public class CountGenres extends Configured implements Tool {
   static int printUsage() {
     System.out
         .println(CountGenres.class.getName()
-            + " -i input -o output \nExample usage: hadoop jar trec-kba.jar ilps.hadoop.CountGenres -i kba/kba-stream-corpus-2012-cleansed-only-out/*/* -o kba/kba-stream-corpus-2012-cleansed-only-out-genrecounts\n\n");
+            + " -i input -o output \n"
+            + "Example usage: hadoop jar trec-kba.jar ilps.hadoop.CountGenres"
+            + " -i kba/kba-stream-corpus-2012-cleansed-only-out-repacked"
+            + " -o kba/kba-stream-corpus-2012-cleansed-only-out-repacked-genrecounts\n\n");
     ToolRunner.printGenericCommandUsage(System.out);
     return -1;
   }
@@ -155,7 +129,11 @@ public class CountGenres extends Configured implements Tool {
     // some weird issues with Thrift classes in the Hadoop distro.
     job.setUserClassesTakesPrecedence(true);
 
-    job.setInputFormatClass(ThriftFileInputFormat.class);
+    // for the raw data:
+    // job.setInputFormatClass(ThriftFileInputFormat.class);
+    // for the repacked data:
+    job.setInputFormatClass(SequenceFileInputFormat.class);
+
     job.setMapperClass(MyMapper.class);
     FileInputFormat.addInputPath(job, new Path(in));
 
