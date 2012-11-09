@@ -1,9 +1,8 @@
 package ilps.util;
 
-import ilps.WikipediaWebservice;
-import ilps.WikipediaWebservice.Item;
 import ilps.json.run.Filter_run;
 import ilps.json.topics.Filter_topics;
+import ilps.util.WittenWikipediaWebservice.Item;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -104,7 +103,7 @@ public class IO {
         t = t.replaceAll("_", " ");
         pset.add(t.toLowerCase());
 
-        for (Item o : WikipediaWebservice.getExpansions(t)) {
+        for (Item o : WittenWikipediaWebservice.getExpansions(t)) {
 
           String label = Normalization.normalize(o.text);
 
