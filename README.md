@@ -56,6 +56,28 @@ Note that the ```tiny-kba-stream-corpus``` can be found in the [official toy KBA
 
 Type ```hadoop jar trec-kba.jar ilps.hadoop.bin.ToyKbaSystem --help``` for all possible options.
 
+### ILPS baseline KBA system
+
+This is the baseline used by the ILPS group (although it uses David Milne's webservice instead of our own, in-house developed one). To run, use
+    
+    hadoop jar trec-kba.jar ilps.hadoop.bin.IlpsKbaStepOne \
+        -i kba/tiny-kba-stream-corpus-repacked/*/* \
+        -o kba/tiny-kba-stream-corpus-repacked-step-one \
+        -q trec-kba-ccr-2012.filter-topics.json
+        
+(Type ```hadoop jar trec-kba.jar ilps.hadoop.bin.IlpsKbaStepOne --help``` for all possible options.)
+        
+Then,
+
+    hadoop jar trec-kba.jar ilps.hadoop.bin.IlpsKbaStepTwoBaseline \
+        -i kba/tiny-kba-stream-corpus-repacked-step-one \
+        -o kba/tiny-kba-stream-corpus-repacked-step-two-baseline \
+        -q trec-kba-ccr-2012.filter-topics.json \
+        -r UvAbaseline -t UvA -d "baseline run." \
+        > baseline.json
+
+Type ```hadoop jar trec-kba.jar ilps.hadoop.bin.IlpsKbaStepTwoBaseline --help``` for all possible options.
+
 ### Genre counter
 
 This application merely counts the the different genres (web, social, news) in the KBA data. To run, use 
@@ -71,6 +93,10 @@ This application merely counts the the different genres (web, social, news) in t
 *   Added a class (ilps.hadoop.bin.RepackData) that converts the KBA data to block-compressed sequences files to speed up subsequent processing. It specifies the same key-value pairs as the ThriftFileInputFormat, just make sure to change the InputFormatClass to SequenceFileInputFormat. 
 *   Updated Toy KBA System to the new output (without the date field)
 *   Added a flag (-f) to allow overwriting Hadoop data
+
+### 2012-09-28
+
+*   ! Added the source code for the University of Amsterdam's (ILPS) baseline system. Note that this uses David Milne's Wikipedia Miner webservice to fetch alternative surface forms for each entity. Our actual submission uses more, in-house developed data.    
 
 ## Issues
 
